@@ -1,3 +1,4 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using SmartSchool.WebAPI.Data;
 using SmartSchool.WebAPI.Dtos;
@@ -10,92 +11,90 @@ namespace SmartSchool.WebAPI.Controllers
     public class AlunoController : ControllerBase
     {
         private readonly IRepository _repo;
+        private readonly IMapper _mapper;
 
-        public AlunoController(IRepository repo)
+        public AlunoController(IRepository repo,
+                               IMapper mapper)
         {
             _repo = repo;
+            _mapper = mapper;
         }
 
         [HttpGet]
         public IActionResult Get()
         {
             var alunos = _repo.GetAllAlunos(true);
-            var alunosRetorno = new List<AlunoDto>();
 
-            foreach (var aluno in alunos)
-            {
-                alunosRetorno.Add(new AlunoDto() {
-                    Id = aluno.Id,
-                    Matricula = aluno.Matricula,
-                    Nome = $"{aluno.Nome} {aluno.SobreNome}",
-                    Telefone = aluno.Telefone,
-                    DataIni = aluno.DataIni,
-                    Ativo = aluno.Ativo
-                });
-            }
-
-            return Ok(alunosRetorno);
+            return Ok(_mapper.Map<IEnumerable<AlunoDto>>(alunos));
         }
 
         [HttpGet("{id:int}")]
         public IActionResult GetById(int id)
         {
-            var aluno = _repo.GetAlunoById(id);
+            var aluno = _repo.GetAlunoById(id, false);
 
             if (aluno == null)
                 return BadRequest("O aluno não foi encontrado.");
 
-            return Ok(aluno);
+            var alunoDto = _mapper.Map<AlunoDto>(aluno);
+
+            return Ok(alunoDto);
         }
 
         [HttpPost]
-        public IActionResult Post(Aluno aluno)
+        public IActionResult Post(AlunoRegistrarDto model)
         {
+            var aluno = _mapper.Map<Aluno>(model);
+
             _repo.Add(aluno);
-            
-            if(!_repo.SaveChanges())
+
+            if (!_repo.SaveChanges())
                 return BadRequest("Aluno não cadastrado.");
 
-            return Ok(aluno);
+            return Created($"/api/aluno/{aluno.Id}", _mapper.Map<AlunoDto>(aluno));
         }
 
         [HttpPut("{id}")]
-        public IActionResult Put(int id, Aluno aluno)
+        public IActionResult Put(int id, AlunoRegistrarDto model)
         {
-            var alu = _repo.GetAlunoById(id);
-            if(alu == null) return BadRequest("Aluno não encontrado.");
+            var aluno = _repo.GetAlunoById(id);
+            if (aluno == null) return BadRequest("Aluno não encontrado.");
+
+            _mapper.Map(model, aluno);
 
             _repo.Update(aluno);
-            
-            if(!_repo.SaveChanges())
+
+            if (!_repo.SaveChanges())
                 return BadRequest("Aluno não atualizado.");
 
-            return Ok(aluno);
+            return Created($"/api/aluno/{aluno.Id}", _mapper.Map<AlunoDto>(aluno));
         }
 
         [HttpPatch("{id}")]
-        public IActionResult Patch(int id, Aluno aluno)
+        public IActionResult Patch(int id, AlunoRegistrarDto model)
         {
-            var alu = _repo.GetAlunoById(id);
-            if(alu == null) return BadRequest("Aluno não encontrado.");
+            var aluno = _repo.GetAlunoById(id);
+            if (aluno == null) return BadRequest("Aluno não encontrado.");
+
+            _mapper.Map(model, aluno);
 
             _repo.Update(aluno);
-            
-            if(!_repo.SaveChanges())
+
+            if (!_repo.SaveChanges())
                 return BadRequest("Aluno não atualizado.");
 
-            return Ok(aluno);
+            return Created($"/api/aluno/{aluno.Id}", _mapper.Map<AlunoDto>(aluno));
         }
 
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
             var aluno = _repo.GetAlunoById(id);
-            if(aluno == null) return BadRequest("Aluno não encontrado.");
+            if (aluno == null) return BadRequest("Aluno não encontrado.");
 
             _repo.Delete(aluno);
-            
-            if(!_repo.SaveChanges())
+
+            if (!_repo.SaveChanges())
                 return BadRequest("Aluno não deletado.");
 
             return Ok("Aluno deletado");
