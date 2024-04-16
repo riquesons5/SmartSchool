@@ -1,6 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using SmartSchool.WebAPI.Data;
+using SmartSchool.WebAPI.Helpers;
 using SmartSchool.WebAPI.Models;
 using SmartSchool.WebAPI.v1.Dtos;
 
@@ -34,9 +35,9 @@ namespace SmartSchool.WebAPI.v1.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get([FromQuery] PageParams pageParams)
         {
-            var alunos = await _repo.GetAllAlunosAsync(true);
+            var alunos = await _repo.GetAllAlunosAsync(pageParams, true);
 
             return Ok(_mapper.Map<IEnumerable<AlunoDto>>(alunos));
         }
