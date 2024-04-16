@@ -1,16 +1,17 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using SmartSchool.WebAPI.Data;
-using SmartSchool.WebAPI.Dtos;
 using SmartSchool.WebAPI.Models;
+using SmartSchool.WebAPI.v2.Dtos;
 
-namespace SmartSchool.WebAPI.Controllers
+namespace SmartSchool.WebAPI.v2.Controllers
 {
     /// <summary>
-    /// 
+    /// Versão 2 do meu controlador de Alunos
     /// </summary>
     [ApiController]
-    [Route("api/[controller]")]
+    [ApiVersion("2.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     public class AlunoController : ControllerBase
     {
         private readonly IRepository _repo;
@@ -87,22 +88,7 @@ namespace SmartSchool.WebAPI.Controllers
             return Created($"/api/aluno/{aluno.Id}", _mapper.Map<AlunoDto>(aluno));
         }
 
-        [HttpPatch("{id}")]
-        public IActionResult Patch(int id, AlunoRegistrarDto model)
-        {
-            var aluno = _repo.GetAlunoById(id);
-            if (aluno == null) return BadRequest("Aluno não encontrado.");
-
-            _mapper.Map(model, aluno);
-
-            _repo.Update(aluno);
-
-            if (!_repo.SaveChanges())
-                return BadRequest("Aluno não atualizado.");
-
-            return Created($"/api/aluno/{aluno.Id}", _mapper.Map<AlunoDto>(aluno));
-        }
-
+        
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
