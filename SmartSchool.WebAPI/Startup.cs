@@ -44,7 +44,7 @@ namespace SmartSchool.WebAPI
             });
 
             var apiProviderDescription = services.BuildServiceProvider()
-                                                  .GetService<IApiVersionDescriptionProvider>();
+                                                 .GetService<IApiVersionDescriptionProvider>();
 
             services.AddSwaggerGen(options =>
             {

@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using SmartSchool.WebAPI.Helpers;
 using SmartSchool.WebAPI.Models;
 
 namespace SmartSchool.WebAPI.Data
@@ -45,6 +46,23 @@ namespace SmartSchool.WebAPI.Data
             query = query.AsNoTracking().OrderBy(a => a.Id);
 
             return query.ToArray();
+        }
+
+        public async Task<PageList<Aluno>> GetAllAlunosAsync(bool includeProfessor = false)
+        {
+            IQueryable<Aluno> query = _context.Alunos;
+
+            if(includeProfessor)
+            {
+                query = query.Include(a => a.AlunosDisciplinas)
+                            .ThenInclude(ad => ad.Disciplina)
+                            .ThenInclude(d => d.Professor);
+            }
+
+            query = query.AsNoTracking().OrderBy(a => a.Id);
+
+            //return await query.ToListAsync();
+            return await PageList<Aluno>.CreateAsync(query, 1, 5);
         }
 
         public Aluno[] GetAllAlunosByDisciplinaId(int disciplinaId, bool includeProfessor = false)
