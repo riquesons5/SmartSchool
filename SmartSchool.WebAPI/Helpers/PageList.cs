@@ -4,7 +4,7 @@ namespace SmartSchool.WebAPI.Helpers
 {
     public class PageList<T> : List<T>
     {
-        public int CorrentPage { get; set; }
+        public int CurrentPage { get; set; }
         public int TotalPages { get; set; }
         public int PageSize { get; set; }
         public int TotalCount { get; set; }
@@ -13,7 +13,7 @@ namespace SmartSchool.WebAPI.Helpers
         {
             TotalCount = count;
             PageSize = pageSize;
-            CorrentPage = pageNumber;
+            CurrentPage = pageNumber;
             TotalPages = (int)Math.Ceiling(count / (double)pageSize);
 
             this.AddRange(items);
